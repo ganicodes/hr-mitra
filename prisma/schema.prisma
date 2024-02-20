@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Organizations {
+  id        Int         @id @default(autoincrement())
+  name      String?
+  isActive  Boolean     @default(true)
+  employers Employers[]
+}
+
+model Employers {
+  id             Int           @id @default(autoincrement())
+  organizationId Int
+  name           String
+  isActive       Boolean       @default(true)
+  organization   Organizations @relation(fields: [organizationId], references: [id])
+  employees      Employees[]
+}
+
+enum RoleType {
+  USER      @map("user")
+  ADMIN     @map("admin")
+  MANAGER   @map("manager")
+  RECRUITER @map("recruiter")
+}
+
+model Employees {
+  id          Int       @id @default(autoincrement())
+  employerId  Int
+  employer    Employers @relation(fields: [employerId], references: [id])
+  name        String
+  email       String    @unique
+  role        RoleType
+  isAdmin     Boolean   @default(false)
+  isManager   Boolean   @default(false)
+  isRecruiter Boolean   @default(false)
+  isActive    Boolean   @default(true)
+}
